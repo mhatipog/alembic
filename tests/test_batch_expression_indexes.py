@@ -187,7 +187,7 @@ def test_batch_recreate_multiple_textual_indexes_do_not_conflict():
             "AND name LIKE 'ix_users_%' ORDER BY name"
         ).all()
         assert indexes == [
-            ("ix_users_lower_a", "CREATE INDEX ix_users_lower_a ON users (lower(name))"),
-            ("ix_users_lower_b", "CREATE INDEX ix_users_lower_b ON users (lower(name))"),
+            (\n                "ix_users_lower_a",\n                "CREATE INDEX ix_users_lower_a ON users (lower(name))",\n            ),
+            (\n                "ix_users_lower_b",\n                "CREATE INDEX ix_users_lower_b ON users (lower(name))",\n            ),
             ("ix_users_name", "CREATE INDEX ix_users_name ON users (name)"),
         ]
