@@ -10,6 +10,7 @@ from sqlalchemy import CheckConstraint
 from sqlalchemy import Column
 from sqlalchemy import ForeignKeyConstraint
 from sqlalchemy import Index
+from sqlalchemy import literal_column
 from sqlalchemy import MetaData
 from sqlalchemy import PrimaryKeyConstraint
 from sqlalchemy import schema as sql_schema
@@ -35,6 +36,7 @@ from ..util.sqla_compat import _is_type_bound
 from ..util.sqla_compat import _name_type_bound_constraints
 from ..util.sqla_compat import _remove_column_from_collection
 from ..util.sqla_compat import _resolve_for_variant
+from ..util.sqla_compat import _textual_index_element
 from ..util.sqla_compat import constraint_name_defined
 from ..util.sqla_compat import constraint_name_string
 
@@ -432,7 +434,15 @@ class ApplyBatchImpl:
                 Index(
                     index.name,
                     unique=index.unique,
-                    *[self.new_table.c[col] for col in index.columns.keys()],
+                    *[
+                        (
+                            literal_column(expr.text.text)
+                            if isinstance(expr, _textual_index_element)
+                            else _copy_expression(expr, self.new_table)
+                        )
+                        for expr in _idx_table_bound_expressions(index)
+                    ],
+                    _table=self.new_table,
                     **index.kwargs,
                 )
             )
